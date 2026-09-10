@@ -2,93 +2,60 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Perro Negro Gym</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pajo Gym</title>
     <style>
         :root {
             --ios-bg: #000000;
-            --ios-card: #1c1c1e;
-            --ios-card-pressed: #2c2c2e;
-            --ios-separator: #38383a;
-            --ios-blue: #0a84ff;
+            --ios-card-bg: #1c1c1e;
+            --ios-text: #ffffff;
+            --ios-text-muted: #8e8e93;
+            --ios-border: #38383a;
             --ios-green: #30d158;
             --ios-orange: #ff9f0a;
-            --ios-red: #ff453a;
-            --ios-text: #ffffff;
-            --ios-text-secondary: #ebebf5;
-            --ios-text-muted: #8e8e93;
+            --ios-blue: #0a84ff;
+            --ios-input-bg: #2c2c2e;
         }
 
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+        [data-theme="light"] {
+            --ios-bg: #f2f2f7;
+            --ios-card-bg: #ffffff;
+            --ios-text: #000000;
+            --ios-text-muted: #6c6c70;
+            --ios-border: #c6c6c8;
+            --ios-green: #34c759;
+            --ios-orange: #ff9500;
+            --ios-blue: #007aff;
+            --ios-input-bg: #e5e5ea;
         }
 
         body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--ios-bg);
             color: var(--ios-text);
             margin: 0;
-            padding: 12px 16px;
+            padding: 16px;
             display: flex;
             justify-content: center;
-            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
-
         .container {
             width: 100%;
-            max-width: 430px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
+            max-width: 480px;
         }
-
-        /* Barra de Navegação iOS (Header com botão subtil) */
-        .ios-nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 0;
-            min-height: 44px;
-        }
-
-        .ios-back-btn {
-            color: var(--ios-blue);
-            text-decoration: none;
-            font-size: 17px;
-            font-weight: 400;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .ios-back-btn:active {
-            opacity: 0.6;
-        }
-
         h1 {
-            font-size: 34px;
+            font-size: 28px;
             font-weight: 700;
-            letter-spacing: 0.37px;
-            margin: 8px 0 16px 0;
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
         }
-
-        h2 {
-            font-size: 22px;
-            font-weight: 600;
-            letter-spacing: 0.26px;
-            margin: 12px 0 8px 4px;
-            color: var(--ios-text);
-        }
-
-        /* Grupos Estilo Listas do iOS (Definições) */
         .ios-group {
-            background-color: var(--ios-card);
+            background-color: var(--ios-card-bg);
             border-radius: 12px;
             overflow: hidden;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-
         .ios-cell {
             display: flex;
             align-items: center;
@@ -96,153 +63,124 @@
             padding: 14px 16px;
             text-decoration: none;
             color: var(--ios-text);
-            font-size: 17px;
-            font-weight: 400;
-            position: relative;
-            background-color: var(--ios-card);
-            transition: background-color 0.15s ease;
+            border-bottom: 1px solid var(--ios-border);
         }
-
-        .ios-cell:not(:last-child):after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            left: 16px;
-            height: 0.5px;
-            background-color: var(--ios-separator);
+        .ios-cell:last-child {
+            border-bottom: none;
         }
-
-        .ios-cell:active {
-            background-color: var(--ios-card-pressed);
-        }
-
         .ios-cell-left {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-
         .ios-cell-icon {
-            font-size: 20px;
-            width: 29px;
-            height: 29px;
+            width: 30px;
+            height: 30px;
             border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 16px;
+            color: white;
         }
-
-        .icon-green { background-color: var(--ios-green); color: #000; }
-        .icon-orange { background-color: var(--ios-orange); color: #000; }
-        .icon-blue { background-color: var(--ios-blue); color: #fff; }
-
+        .icon-green { background-color: var(--ios-green); }
+        .icon-orange { background-color: var(--ios-orange); }
+        .icon-blue { background-color: var(--ios-blue); }
         .ios-cell-arrow {
             color: var(--ios-text-muted);
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 18px;
+            font-weight: bold;
         }
-
-        /* Cartões de Formulário */
         .ios-form-card {
-            background-color: var(--ios-card);
+            background-color: var(--ios-card-bg);
             border-radius: 12px;
             padding: 16px;
             margin-bottom: 16px;
         }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        form label {
+        label {
+            display: block;
             font-size: 13px;
+            font-weight: 600;
             color: var(--ios-text-muted);
-            font-weight: 400;
-            margin-bottom: -10px;
-            padding-left: 4px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
         }
-
-        form input {
+        input, select {
             width: 100%;
-            padding: 12px 14px;
-            background-color: #2c2c2e;
-            border: none;
+            background-color: var(--ios-input-bg);
+            color: var(--ios-text);
+            border: 1px solid var(--ios-border);
             border-radius: 8px;
-            color: white;
-            font-size: 17px;
-            outline: none;
+            padding: 10px 12px;
+            font-size: 16px;
+            margin-bottom: 14px;
+            box-sizing: border-box;
         }
-
-        form input:focus {
-            box-shadow: 0 0 0 2px var(--ios-blue);
-        }
-
-        /* Botões de Ação estilo iOS */
         .ios-btn {
             display: block;
             width: 100%;
-            padding: 14px;
-            text-align: center;
-            border-radius: 12px;
-            font-size: 17px;
-            font-weight: 600;
-            text-decoration: none;
+            background-color: var(--ios-blue);
+            color: white;
             border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
             cursor: pointer;
             margin-top: 8px;
         }
-
         .ios-btn-green { background-color: var(--ios-green); color: #000; }
-        .ios-btn-orange { background-color: var(--ios-orange); color: #000; }
-        .ios-btn-blue { background-color: var(--ios-blue); color: #fff; }
-        .ios-btn-red { background-color: rgba(255, 69, 58, 0.15); color: var(--ios-red); padding: 8px 12px; font-size: 14px; width: auto; }
-
-        .ios-btn:active {
-            opacity: 0.7;
+        .ios-nav {
+            margin-bottom: 12px;
         }
-
+        .ios-back-btn {
+            color: var(--ios-blue);
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+        }
         .timestamp-badge {
-            text-align: center;
-            font-size: 13px;
+            font-size: 12px;
             color: var(--ios-text-muted);
             margin-bottom: 12px;
         }
-
-        .grafico-img {
-            width: 100%;
-            border-radius: 10px;
-            margin-top: 8px;
+        .top-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 8px;
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 15px;
-        }
-
-        th, td {
-            padding: 12px 8px;
-            text-align: left;
-            border-bottom: 0.5px solid var(--ios-separator);
-        }
-
-        th {
-            color: var(--ios-text-muted);
-            font-weight: 400;
-            font-size: 13px;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
+        .theme-toggle {
+            background: var(--ios-card-bg);
+            border: 1px solid var(--ios-border);
+            color: var(--ios-text);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="top-bar">
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌓 Tema</button>
+        </div>
+
         {% block content %}{% endblock %}
     </div>
+
+    <script>
+        const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-theme', currentTheme);
+
+        function toggleTheme() {
+            let theme = document.documentElement.getAttribute('data-theme');
+            let newTheme = theme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+    </script>
 </body>
 </html>
