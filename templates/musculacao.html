@@ -14,7 +14,7 @@
                 </div>
                 <span class="ios-cell-arrow">›</span>
             </a>
-            <a href="{{ url_for('musculacao_registar', grupo='Inferiores') }}" class="ios-cell">
+            <a href="{{ url_for('musculacao_grupo', grupo='Inferiores') }}" class="ios-cell">
                 <div class="ios-cell-left">
                     <div class="ios-cell-icon icon-green">👖</div>
                     <span>Inferiores</span>
@@ -22,31 +22,35 @@
                 <span class="ios-cell-arrow">›</span>
             </a>
         </div>
+
     {% elif step == 'superiores' %}
+        <div class="ios-nav">
+            <a href="{{ url_for('musculacao_menu') }}" class="ios-back-btn">‹ Voltar</a>
+        </div>
         <h1>Superiores</h1>
         <div class="ios-group">
-            <a href="{{ url_for('musculacao_registar', grupo='Peito') }}" class="ios-cell">
+            <a href="{{ url_for('musculacao_grupo', grupo='Peito') }}" class="ios-cell">
                 <div class="ios-cell-left">
                     <div class="ios-cell-icon icon-green">💥</div>
                     <span>Peito</span>
                 </div>
                 <span class="ios-cell-arrow">›</span>
             </a>
-            <a href="{{ url_for('musculacao_registar', grupo='Bracos') }}" class="ios-cell">
+            <a href="{{ url_for('musculacao_grupo', grupo='Bracos') }}" class="ios-cell">
                 <div class="ios-cell-left">
                     <div class="ios-cell-icon icon-green">💪</div>
                     <span>Braços</span>
                 </div>
                 <span class="ios-cell-arrow">›</span>
             </a>
-            <a href="{{ url_for('musculacao_registar', grupo='Costas') }}" class="ios-cell">
+            <a href="{{ url_for('musculacao_grupo', grupo='Costas') }}" class="ios-cell">
                 <div class="ios-cell-left">
                     <div class="ios-cell-icon icon-green">🔙</div>
                     <span>Costas</span>
                 </div>
                 <span class="ios-cell-arrow">›</span>
             </a>
-            <a href="{{ url_for('musculacao_registar', grupo='Ombros') }}" class="ios-cell">
+            <a href="{{ url_for('musculacao_grupo', grupo='Ombros') }}" class="ios-cell">
                 <div class="ios-cell-left">
                     <div class="ios-cell-icon icon-green">🤷‍♂️</div>
                     <span>Ombros</span>
@@ -54,18 +58,172 @@
                 <span class="ios-cell-arrow">›</span>
             </a>
         </div>
-    {% elif step == 'registar' %}
+
+    {% elif step == 'grupo_detalhe' %}
         <div class="ios-nav">
             <a href="{{ url_for('musculacao_superiores') if grupo in ['Peito', 'Bracos', 'Costas', 'Ombros'] else url_for('musculacao_menu') }}" class="ios-back-btn">‹ Voltar</a>
         </div>
         <h1>{{ grupo }}</h1>
+
+        <div class="ios-group" style="margin-bottom: 12px;">
+            <a href="{{ url_for('musculacao_registar', grupo=grupo) }}" class="ios-cell">
+                <div class="ios-cell-left">
+                    <div class="ios-cell-icon icon-green" style="background-color: var(--ios-green); color: #000; font-weight: bold;">+</div>
+                    <span style="font-weight: 600; color: var(--ios-green);">Adicionar Novo Exercício</span>
+                </div>
+                <span class="ios-cell-arrow">›</span>
+            </a>
+        </div>
+
+        {% if exercicios %}
+        <p style="margin: 8px 0 4px 4px; font-size: 13px; color: var(--ios-text-muted);">OS TEUS EXERCÍCIOS</p>
+        <div class="ios-group">
+            {% for e in exercicios %}
+            <a href="{{ url_for('musculacao_exercicio_detalhe', exercicio_nome=e.exercicio) }}" class="ios-cell">
+                <div class="ios-cell-left">
+                    <div class="ios-cell-icon icon-green" style="font-size: 14px;">💪</div>
+                    <div>
+                        <div style="font-size: 16px; font-weight: 500; color: var(--ios-text);">{{ e.exercicio }}</div>
+                        <div style="font-size: 12px; color: var(--ios-text-muted);">Recorde Máx: <b>{{ e.max_peso }} kg</b> • Último: {{ e.data_formatada }}</div>
+                    </div>
+                </div>
+                <span class="ios-cell-arrow">›</span>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="ios-form-card" style="text-align: center; margin-top: 16px;">
+            <p style="color: var(--ios-text-muted); font-size: 14px;">Ainda não tens exercícios em <b>{{ grupo }}</b>.</p>
+        </div>
+        {% endif %}
+
+    {% elif step == 'exercicio_detalhe' %}
+        <div class="ios-nav">
+            <a href="{{ url_for('musculacao_grupo', grupo=grupo) }}" class="ios-back-btn">‹ Voltar</a>
+        </div>
+        <h1>{{ exercicio }}</h1>
+
+        <!-- Cartão de Recorde Pessoal -->
+        <div class="ios-form-card" style="text-align: center; margin-bottom: 16px; background: linear-gradient(135deg, #1c1c1e, #2c2c2e); border: 1px solid var(--ios-green);">
+            <div style="font-size: 12px; color: var(--ios-text-muted); text-transform: uppercase; letter-spacing: 0.5px;">🏆 Recorde Pessoal (Peso Máximo)</div>
+            <div style="font-size: 32px; font-weight: bold; color: var(--ios-green); margin: 4px 0;">{{ max_peso }} kg</div>
+        </div>
+
+        <!-- Cronómetro de Descanso Integrado -->
+        <div class="ios-form-card" style="margin-bottom: 16px; text-align: center; background: #1c1c1e; border: 1px solid #38383a;">
+            <div style="font-size: 12px; color: var(--ios-text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 6px;">⏱️ Descanso entre Séries</div>
+            <div id="timerDisplay" style="font-size: 38px; font-weight: bold; color: var(--ios-text); font-variant-numeric: tabular-nums; margin: 4px 0;">00:00</div>
+            
+            <!-- Botões de Atalho de Tempo -->
+            <div style="display: flex; gap: 6px; justify-content: center; margin: 12px 0;">
+                <button type="button" onclick="iniciarCronometro(45)" class="ios-btn" style="flex: 1; margin-top: 0; padding: 6px; font-size: 13px; background: #2c2c2e; color: #fff;">45s</button>
+                <button type="button" onclick="iniciarCronometro(60)" class="ios-btn" style="flex: 1; margin-top: 0; padding: 6px; font-size: 13px; background: #2c2c2e; color: #fff;">60s</button>
+                <button type="button" onclick="iniciarCronometro(90)" class="ios-btn" style="flex: 1; margin-top: 0; padding: 6px; font-size: 13px; background: #2c2c2e; color: #fff;">90s</button>
+                <button type="button" onclick="iniciarCronometro(120)" class="ios-btn" style="flex: 1; margin-top: 0; padding: 6px; font-size: 13px; background: #2c2c2e; color: #fff;">120s</button>
+            </div>
+            
+            <button type="button" id="btnParar" onclick="pararCronometro()" style="display: none; width: 100%; background: #ff453a; color: white; border: none; padding: 8px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; margin-top: 4px;">Parar / Repor</button>
+        </div>
+
+        <!-- Formulário para adicionar nova série -->
+        <div class="ios-form-card" style="margin-bottom: 20px;">
+            <h3 style="margin-top: 0; font-size: 15px; color: var(--ios-text);">Registar Nova Série</h3>
+            <div class="timestamp-badge" style="margin-bottom: 12px;">📅 {{ agora_str }}</div>
+            <form method="POST">
+                <input type="hidden" name="grupo" value="{{ grupo }}">
+                <div style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <label style="font-size: 12px;">Peso (kg)</label>
+                        <input type="number" step="0.5" name="peso" placeholder="0.0" required style="margin-bottom: 0;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="font-size: 12px;">Repetições</label>
+                        <input type="number" name="repeticoes" placeholder="0" required style="margin-bottom: 0;">
+                    </div>
+                </div>
+                <button type="submit" class="ios-btn ios-btn-green" style="margin-top: 12px;" onclick="iniciarCronometro(90)">Guardar Série (Descanso 90s)</button>
+            </form>
+        </div>
+
+        <h3 style="margin: 0 0 8px 4px; font-size: 14px; color: var(--ios-text-muted);">HISTÓRICO DE SÉRIES</h3>
+        {% if registos %}
+        <div class="ios-group">
+            {% for r in registos %}
+            <div class="ios-cell" style="padding: 12px 16px; align-items: center;">
+                <div class="ios-cell-left" style="flex: 1;">
+                    <div>
+                        <div style="font-size: 16px; font-weight: 600; color: var(--ios-text);">{{ r.peso }} kg <span style="font-weight: 400; font-size: 14px; color: var(--ios-text-muted);">× {{ r.repeticoes }} reps</span></div>
+                        <div style="font-size: 11px; color: var(--ios-text-muted);">{{ r.data_formatada }}</div>
+                    </div>
+                </div>
+                <form method="POST" onsubmit="return confirm('Queres mesmo apagar este registo?');" style="margin: 0;">
+                    <input type="hidden" name="apagar_id" value="{{ r.id }}">
+                    <button type="submit" style="background: none; border: none; color: #ff453a; font-size: 13px; font-weight: 600; cursor: pointer; padding: 4px 8px;">Apagar</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="color: var(--ios-text-muted); text-align: center; font-size: 14px;">Ainda sem séries registadas.</p>
+        {% endif %}
+
+        <!-- Script do Cronómetro -->
+        <script>
+            let countdown;
+            let tempoRestante = 0;
+            const display = document.getElementById('timerDisplay');
+            const btnParar = document.getElementById('btnParar');
+
+            function iniciarCronometro(segundos) {
+                clearInterval(countdown);
+                tempoRestante = segundos;
+                atualizarDisplay();
+                btnParar.style.display = 'block';
+
+                countdown = setInterval(() => {
+                    tempoRestante--;
+                    atualizarDisplay();
+
+                    if (tempoRestante <= 0) {
+                        clearInterval(countdown);
+                        display.innerHTML = "Pronto! 💪";
+                        display.style.color = "var(--ios-green)";
+                        btnParar.style.display = 'none';
+                        if (navigator.vibrate) {
+                            navigator.vibrate([200, 100, 200]);
+                        }
+                    }
+                }, 1000);
+            }
+
+            function pararCronometro() {
+                clearInterval(countdown);
+                tempoRestante = 0;
+                display.innerHTML = "00:00";
+                display.style.color = "var(--ios-text)";
+                btnParar.style.display = 'none';
+            }
+
+            function atualizarDisplay() {
+                let mins = Math.floor(tempoRestante / 60);
+                let secs = tempoRestante % 60;
+                display.innerHTML = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                display.style.color = "var(--ios-text)";
+            }
+        </script>
+
+    {% elif step == 'registar' %}
+        <div class="ios-nav">
+            <a href="{{ url_for('musculacao_grupo', grupo=grupo) }}" class="ios-back-btn">‹ Voltar</a>
+        </div>
+        <h1>Novo Exercício: {{ grupo }}</h1>
         <div class="timestamp-badge">📅 Registo Automático: {{ agora_str }}</div>
         
         <div class="ios-form-card">
             <form method="POST">
                 <input type="hidden" name="grupo" value="{{ grupo }}">
                 
-                <label>Exercício</label>
+                <label>Nome do Exercício</label>
                 <input type="text" name="exercicio" placeholder="Ex: Supino Reto" required autocomplete="off">
                 
                 <label>Peso (kg)</label>
