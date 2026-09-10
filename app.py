@@ -45,10 +45,88 @@ def iniciar_db():
             peso REAL NOT NULL
         )
     ''')
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS plano_exercicios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            dia_semana TEXT NOT NULL,
+            grupo TEXT NOT NULL,
+            exercicio TEXT NOT NULL
+        )
+    ''')
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS exercicios_catalogo (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            grupo TEXT NOT NULL,
+            nome TEXT UNIQUE NOT NULL
+        )
+    ''')
     conn.commit()
     conn.close()
 
 iniciar_db()
+
+def normalizar_exercicio(nome):
+    if not nome or not nome.strip():
+        return ""
+    
+    nome_limpo = nome.strip().lower()
+    
+    correcoes = {
+        "sipino": "Supino",
+        "supino": "Supino",
+        "supino inclinado": "Supino Inclinado",
+        "sipino inclinado": "Supino Inclinado",
+        "supino reto": "Supino Reto",
+        "curl bicep": "Curl de Bíceps",
+        "curl biceps": "Curl de Bíceps"
+    }
+    
+    if nome_limpo in correcoes:
+        return correcoes[nome_limpo]
+    
+    return " ".join([ palavra.capitalize() for palavra in nome_limpo.split() ])
+
+def registar_catalogo(grupo, nome):
+    nome_normalizado = normalizar_exercicio(nome)
+    if not nome_normalizado:
+        return
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("INSERT OR IGNORE INTO exercicios_catalogo (grupo, nome) VALUES (?, ?)", (grupo, nome_normalizado))
+    conn.commit()
+    conn.close()
+
+def calcular_streak_treino():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    
+    query = "SELECT DISTINCT date(data_hora) as dia FROM musculacao UNION SELECT DISTINCT date(data_hora) as dia FROM cardio ORDER BY dia DESC"
+    dias_raw = c.execute(query).fetchall()
+    conn.close()
+    
+    if not dias_raw:
+        return 0
+        
+    dias_treino = [datetime.strptime(row['dia'], '%Y-%m-%d').date() for row in dias_raw]
+    
+    hoje = datetime.now().date()
+    ontem = hoje - timedelta(days=1)
+    
+    # Se não treinou hoje nem ontem, a streak quebra imediatamente a 0
+    if dias_treino[0] != hoje and dias_treino[0] != ontem:
+        return 0
+        
+    streak = 0
+    dia_esperado = dias_treino[0]
+    
+    for d in dias_treino:
+        if d == dia_esperado:
+            streak += 1
+            dia_esperado -= timedelta(days=1)
+        elif d < dia_esperado:
+            break
+            
+    return streak
 
 def gerar_grafico_peso():
     conn = sqlite3.connect(DB_PATH)
@@ -148,7 +226,6 @@ def index():
     query_cardio = "SELECT data_hora FROM cardio WHERE datetime(data_hora) >= datetime('now', '-7 days')"
     
     timestamps_raw = c.execute(query_musc).fetchall() + c.execute(query_cardio).fetchall()
-    conn.close()
 
     total_treinos_semana = 0
     if timestamps_raw:
@@ -162,10 +239,70 @@ def index():
                 total_treinos_semana += 1
             last_dt = dt
 
+    dias_pt = {
+        'Monday': 'Segunda-feira',
+        'Tuesday': 'Terça-feira',
+        'Wednesday': 'Quarta-feira',
+        'Thursday': 'Quinta-feira',
+        'Friday': 'Sexta-feira',
+        'Saturday': 'Sábado',
+        'Sunday': 'Domingo'
+    }
+    dia_ingles = datetime.now().strftime('%A')
+    dia_hoje = dias_pt.get(dia_ingles, 'Segunda-feira')
+
+    exercicios_hoje = c.execute("SELECT id, grupo, exercicio FROM plano_exercicios WHERE dia_semana = ?", (dia_hoje,)).fetchall()
+    streak_dias = calcular_streak_treino()
+
+    conn.close()
+
     return render_template('index.html', 
                            peso_atual=peso_atual, 
                            variacao_peso=variacao_peso, 
-                           total_treinos_semana=total_treinos_semana)
+                           total_treinos_semana=total_treinos_semana,
+                           dia_hoje=dia_hoje,
+                           exercicios_hoje=exercicios_hoje,
+                           streak_dias=streak_dias)
+
+@app.route('/plano', methods=['GET', 'POST'])
+def plano_semanal():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+
+    dias_ordem = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo']
+    grupos_disponiveis = ['Peito', 'Costas', 'Ombros', 'Braços', 'Inferiores', 'Cardio']
+
+    if request.method == 'POST':
+        if 'apagar_id' in request.form:
+            item_id = request.form['apagar_id']
+            c.execute("DELETE FROM plano_exercicios WHERE id = ?", (item_id,))
+            conn.commit()
+        else:
+            dia = request.form.get('dia_semana')
+            grupo = request.form.get('grupo')
+            exercicio_select = request.form.get('exercicio_select')
+            exercicio_novo = request.form.get('exercicio_novo')
+            
+            exercicio_raw = exercicio_novo if (exercicio_novo and exercicio_novo.strip()) else exercicio_select
+            exercicio = normalizar_exercicio(exercicio_raw)
+            
+            if dia and grupo and exercicio:
+                c.execute("INSERT INTO plano_exercicios (dia_semana, grupo, exercicio) VALUES (?, ?, ?)", (dia, grupo, exercicio))
+                conn.commit()
+                registar_catalogo(grupo, exercicio)
+        
+        conn.close()
+        return redirect(url_for('plano_semanal'))
+
+    exercicios_db = c.execute("SELECT nome FROM exercicios_catalogo ORDER BY nome ASC").fetchall()
+    exercicios_existentes = [row['nome'] for row in exercicios_db]
+
+    plano_raw = c.execute("SELECT id, dia_semana, grupo, exercicio FROM plano_exercicios").fetchall()
+    conn.close()
+
+    return render_template('plano.html', dias_ordem=dias_ordem, grupos=grupos_disponiveis, 
+                           exercicios_existentes=exercicios_existentes, plano_raw=plano_raw)
 
 @app.route('/historico')
 def historico_geral():
@@ -187,7 +324,6 @@ def historico_geral():
 
     registos = []
 
-    # 1. Musculação
     musc_rows = c.execute(f"SELECT id, grupo, exercicio, peso, repeticoes, data_hora FROM musculacao WHERE 1=1 {filtro_sql} ORDER BY data_hora DESC", params).fetchall()
     for r in musc_rows:
         registos.append({
@@ -199,7 +335,6 @@ def historico_geral():
             'data_formatada': datetime.strptime(r['data_hora'], '%Y-%m-%d %H:%M:%S').strftime('%d/%m/%Y às %H:%M')
         })
 
-    # 2. Cardio
     cardio_rows = c.execute(f"SELECT id, tipo, subtipo, duracao_min, distancia_km, data_hora FROM cardio WHERE 1=1 {filtro_sql} ORDER BY data_hora DESC", params).fetchall()
     for r in cardio_rows:
         titulo_cardio = f"{r['tipo']}" + (f" ({r['subtipo']})" if r['subtipo'] else "")
@@ -212,7 +347,6 @@ def historico_geral():
             'data_formatada': datetime.strptime(r['data_hora'], '%Y-%m-%d %H:%M:%S').strftime('%d/%m/%Y às %H:%M')
         })
 
-    # 3. Peso
     peso_rows = c.execute(f"SELECT id, peso, data_hora FROM peso_corporal WHERE 1=1 {filtro_sql} ORDER BY data_hora DESC", params).fetchall()
     for r in peso_rows:
         registos.append({
@@ -225,8 +359,6 @@ def historico_geral():
         })
 
     conn.close()
-
-    # Ordenar todos os registos juntos por data decrescente
     registos.sort(key=lambda x: x['data_hora'], reverse=True)
 
     return render_template('historico.html', registos=registos, data_inicio=data_inicio, data_fim=data_fim)
@@ -306,6 +438,7 @@ def musculacao_exercicio_detalhe(exercicio_nome):
             c.execute("INSERT INTO musculacao (data_hora, grupo, exercicio, peso, repeticoes) VALUES (?, ?, ?, ?, ?)", 
                       (data_hora, grupo, exercicio_nome, float(peso), int(repeticoes)))
             conn.commit()
+            registar_catalogo(grupo, exercicio_nome)
 
     registos_raw = c.execute("SELECT id, grupo, data_hora, peso, repeticoes FROM musculacao WHERE exercicio = ? ORDER BY data_hora DESC", (exercicio_nome,)).fetchall()
     max_peso = c.execute("SELECT MAX(peso) FROM musculacao WHERE exercicio = ?", (exercicio_nome,)).fetchone()[0]
@@ -346,25 +479,44 @@ def musculacao_repetir(registo_id):
 
 @app.route('/musculacao/registar', methods=['GET', 'POST'])
 def musculacao_registar():
-    grupo = request.args.get('grupo', 'Geral')
+    grupo = request.args.get('grupo', 'Peito')
+    exercicio_pre = request.args.get('exercicio', '')
     
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+
     if request.method == 'POST':
         data_hora = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         form_grupo = request.form.get('grupo', grupo)
-        exercicio = request.form['exercicio']
+        
+        exercicio_escolhido = request.form.get('exercicio_select')
+        exercicio_novo = request.form.get('exercicio_novo')
+        
+        exercicio_raw = exercicio_novo if (exercicio_novo and exercicio_novo.strip()) else exercicio_escolhido
+        exercicio = normalizar_exercicio(exercicio_raw)
+        
         peso = request.form['peso']
         repeticoes = request.form['repeticoes']
         
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
-        c.execute("INSERT INTO musculacao (data_hora, grupo, exercicio, peso, repeticoes) VALUES (?, ?, ?, ?, ?)", 
-                  (data_hora, form_grupo, exercicio, float(peso), int(repeticoes)))
-        conn.commit()
+        if exercicio and peso and repeticoes:
+            c.execute("INSERT INTO musculacao (data_hora, grupo, exercicio, peso, repeticoes) VALUES (?, ?, ?, ?, ?)", 
+                      (data_hora, form_grupo, exercicio, float(peso), int(repeticoes)))
+            conn.commit()
+            registar_catalogo(form_grupo, exercicio)
+        
         conn.close()
         return redirect(url_for('musculacao_grupo', grupo=form_grupo))
 
+    exercicios_db = c.execute("SELECT nome FROM exercicios_catalogo ORDER BY nome ASC").fetchall()
+    exercicios_anteriores = [row['nome'] for row in exercicios_db]
+    
+    conn.close()
+
     agora_str = datetime.now().strftime('%d/%m/%Y às %H:%M')
-    return render_template('musculacao.html', step='registar', grupo=grupo, agora_str=agora_str)
+    return render_template('musculacao.html', step='registar', grupo=grupo, 
+                           exercicio_pre=exercicio_pre,
+                           exercicios_anteriores=exercicios_anteriores, agora_str=agora_str)
 
 @app.route('/cardio')
 def cardio_menu():
