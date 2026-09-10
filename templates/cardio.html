@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="ios-nav">
+        <a href="{{ url_for('index') if step == 'menu' else (url_for('cardio_menu') if step == 'passadeira_menu' else url_for('cardio_passadeira') if tipo == 'Passadeira' else url_for('cardio_menu')) }}" class="ios-back-btn">‹ Voltar</a>
+    </div>
+
+    {% if step == 'menu' %}
+        <h1>Cardio</h1>
+        <div class="ios-group">
+            <a href="{{ url_for('cardio_passadeira') }}" class="ios-cell">
+                <div class="ios-cell-left">
+                    <div class="ios-cell-icon icon-orange">🏃‍♀️</div>
+                    <span>Passadeira</span>
+                </div>
+                <span class="ios-cell-arrow">›</span>
+            </a>
+            <a href="{{ url_for('cardio_registar', tipo='Estrada') }}" class="ios-cell">
+                <div class="ios-cell-left">
+                    <div class="ios-cell-icon icon-orange">🛣️</div>
+                    <span>Estrada</span>
+                </div>
+                <span class="ios-cell-arrow">›</span>
+            </a>
+        </div>
+    {% elif step == 'passadeira_menu' %}
+        <h1>Passadeira</h1>
+        <div class="ios-group">
+            <a href="{{ url_for('cardio_registar', tipo='Passadeira', subtipo='Caminhada') }}" class="ios-cell">
+                <div class="ios-cell-left">
+                    <div class="ios-cell-icon icon-orange">🚶</div>
+                    <span>Caminhada</span>
+                </div>
+                <span class="ios-cell-arrow">›</span>
+            </a>
+            <a href="{{ url_for('cardio_registar', tipo='Passadeira', subtipo='Corrida') }}" class="ios-cell">
+                <div class="ios-cell-left">
+                    <div class="ios-cell-icon icon-orange">🏃</div>
+                    <span>Corrida</span>
+                </div>
+                <span class="ios-cell-arrow">›</span>
+            </a>
+        </div>
+    {% elif step == 'registar' %}
+        <h1>{{ titulo }}</h1>
+        <div class="timestamp-badge">📅 Registo Automático: {{ agora_str }}</div>
+        
+        <div class="ios-form-card">
+            <form method="POST">
+                <input type="hidden" name="tipo" value="{{ tipo }}">
+                <input type="hidden" name="subtipo" value="{{ subtipo }}">
+                
+                <label>Duração (minutos)</label>
+                <input type="number" step="1" name="duracao_min" placeholder="0" required>
+                
+                <label>Distância (km)</label>
+                <input type="number" step="0.1" name="distancia_km" placeholder="0.0" required>
+                
+                {% if tipo == 'Passadeira' %}
+                <label>Calorias (kcal)</label>
+                <input type="number" step="1" name="kcal" placeholder="0">
+                {% endif %}
+                
+                <button type="submit" class="ios-btn ios-btn-orange">Guardar Cardio</button>
+            </form>
+        </div>
+
+        <h2>Evolução</h2>
+        <div class="ios-form-card">
+            {% if grafico_path %}
+                <img src="{{ url_for('static', filename=img_filename) }}?v={{ timestamp }}" class="grafico-img" alt="Evolução Cardio">
+            {% else %}
+                <p style="text-align: center; color: var(--ios-text-muted); font-size: 15px; padding: 10px;">Ainda sem registos guardados.</p>
+            {% endif %}
+        </div>
+
+        <h2>Histórico</h2>
+        <div class="ios-form-card">
+            {% if registos %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Registo</th>
+                        <th style="text-align: right;">Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in registos %}
+                    <tr>
+                        <td>{{ r.data_formatada }}</td>
+                        <td><b>{{ r.duracao_min }} min</b> ({{ r.distancia_km }} km{% if tipo == 'Passadeira' %} | {{ r.kcal }} kcal{% endif %})</td>
+                        <td style="text-align: right;">
+                            <form action="{{ url_for('cardio_registar', tipo=tipo, subtipo=subtipo) }}" method="POST" style="margin:0;">
+                                <input type="hidden" name="apagar_id" value="{{ r.id }}">
+                                <button type="submit" class="ios-btn ios-btn-red">Apagar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p style="text-align: center; color: var(--ios-text-muted); padding: 10px; font-size: 15px;">Sem entradas.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

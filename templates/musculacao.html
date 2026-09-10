@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="ios-nav">
+        <a href="{{ url_for('index') }}" class="ios-back-btn">‹ Menu</a>
+    </div>
+
+    {% if step == 'menu' %}
+        <h1>Musculação</h1>
+        <div class="ios-group">
+            <a href="{{ url_for('musculacao_superiores') }}" class="ios-cell">
+                <div class="ios-cell-left">
+                    <div class="ios-cell-icon icon-green">👕</div>
+                    <span>Superiores</span>
+                </div>
+                <span class="ios-cell-arrow">›</span>
+            </a>
+            <a href="{{ url_for('musculacao_registar', grupo='Inferiores') }}" class="ios-cell">
+                <div class="ios-cell-left">
+                    <div class="ios-cell-icon icon-green">👖</div>
+                    <span>Inferiores</span>
+                </div>
+                <span class="ios-cell-arrow">›</span>
+            </a>
+        </div>
+    {% elif step == 'superiores' %}
+        <h1>Superiores</h1>
+        <div class="ios-group">
+            <a href="{{ url_for('musculacao_registar', grupo='Peito') }}" class="ios-cell">
+                <div class="ios-cell-left">
+                    <div class="ios-cell-icon icon-green">💥</div>
+                    <span>Peito</span>
+                </div>
+                <span class="ios-cell-arrow">›</span>
+            </a>
+            <a href="{{ url_for('musculacao_registar', grupo='Bracos') }}" class="ios-cell">
+                <div class="ios-cell-left">
+                    <div class="ios-cell-icon icon-green">💪</div>
+                    <span>Braços</span>
+                </div>
+                <span class="ios-cell-arrow">›</span>
+            </a>
+            <a href="{{ url_for('musculacao_registar', grupo='Costas') }}" class="ios-cell">
+                <div class="ios-cell-left">
+                    <div class="ios-cell-icon icon-green">🔙</div>
+                    <span>Costas</span>
+                </div>
+                <span class="ios-cell-arrow">›</span>
+            </a>
+            <a href="{{ url_for('musculacao_registar', grupo='Ombros') }}" class="ios-cell">
+                <div class="ios-cell-left">
+                    <div class="ios-cell-icon icon-green">🤷‍♂️</div>
+                    <span>Ombros</span>
+                </div>
+                <span class="ios-cell-arrow">›</span>
+            </a>
+        </div>
+    {% elif step == 'registar' %}
+        <div class="ios-nav">
+            <a href="{{ url_for('musculacao_superiores') if grupo in ['Peito', 'Bracos', 'Costas', 'Ombros'] else url_for('musculacao_menu') }}" class="ios-back-btn">‹ Voltar</a>
+        </div>
+        <h1>{{ grupo }}</h1>
+        <div class="timestamp-badge">📅 Registo Automático: {{ agora_str }}</div>
+        
+        <div class="ios-form-card">
+            <form method="POST">
+                <input type="hidden" name="grupo" value="{{ grupo }}">
+                
+                <label>Exercício</label>
+                <input type="text" name="exercicio" placeholder="Ex: Supino Reto" required autocomplete="off">
+                
+                <label>Peso (kg)</label>
+                <input type="number" step="0.5" name="peso" placeholder="0.0" required>
+                
+                <label>Repetições</label>
+                <input type="number" name="repeticoes" placeholder="0" required>
+                
+                <button type="submit" class="ios-btn ios-btn-green">Guardar Série</button>
+            </form>
+        </div>
+    {% endif %}
+{% endblock %}

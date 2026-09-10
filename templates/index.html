@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>💪 Pajo Gym</h1>
+    
+    <div class="ios-group">
+        <a href="{{ url_for('musculacao_menu') }}" class="ios-cell">
+            <div class="ios-cell-left">
+                <div class="ios-cell-icon icon-green">🏋️‍♂️</div>
+                <span>Musculação</span>
+            </div>
+            <span class="ios-cell-arrow">›</span>
+        </a>
+        <a href="{{ url_for('cardio_menu') }}" class="ios-cell">
+            <div class="ios-cell-left">
+                <div class="ios-cell-icon icon-orange">🏃‍♂️</div>
+                <span>Cardio</span>
+            </div>
+            <span class="ios-cell-arrow">›</span>
+        </a>
+        <a href="{{ url_for('peso_atual') }}" class="ios-cell">
+            <div class="ios-cell-left">
+                <div class="ios-cell-icon icon-blue">⚖️</div>
+                <span>Atualizações do Peso</span>
+            </div>
+            <span class="ios-cell-arrow">›</span>
+        </a>
+    </div>
+{% endblock %}

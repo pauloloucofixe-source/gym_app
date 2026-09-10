@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pajo Gym</title>
+    <style>
+        :root {
+            --ios-bg: #000000;
+            --ios-card: #1c1c1e;
+            --ios-card-pressed: #2c2c2e;
+            --ios-separator: #38383a;
+            --ios-blue: #0a84ff;
+            --ios-green: #30d158;
+            --ios-orange: #ff9f0a;
+            --ios-red: #ff453a;
+            --ios-text: #ffffff;
+            --ios-text-secondary: #ebebf5;
+            --ios-text-muted: #8e8e93;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--ios-bg);
+            color: var(--ios-text);
+            margin: 0;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 430px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Barra de Navegação iOS (Header com botão subtil) */
+        .ios-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            min-height: 44px;
+        }
+
+        .ios-back-btn {
+            color: var(--ios-blue);
+            text-decoration: none;
+            font-size: 17px;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ios-back-btn:active {
+            opacity: 0.6;
+        }
+
+        h1 {
+            font-size: 34px;
+            font-weight: 700;
+            letter-spacing: 0.37px;
+            margin: 8px 0 16px 0;
+        }
+
+        h2 {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 0.26px;
+            margin: 12px 0 8px 4px;
+            color: var(--ios-text);
+        }
+
+        /* Grupos Estilo Listas do iOS (Definições) */
+        .ios-group {
+            background-color: var(--ios-card);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .ios-cell {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            text-decoration: none;
+            color: var(--ios-text);
+            font-size: 17px;
+            font-weight: 400;
+            position: relative;
+            background-color: var(--ios-card);
+            transition: background-color 0.15s ease;
+        }
+
+        .ios-cell:not(:last-child):after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            left: 16px;
+            height: 0.5px;
+            background-color: var(--ios-separator);
+        }
+
+        .ios-cell:active {
+            background-color: var(--ios-card-pressed);
+        }
+
+        .ios-cell-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ios-cell-icon {
+            font-size: 20px;
+            width: 29px;
+            height: 29px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-green { background-color: var(--ios-green); color: #000; }
+        .icon-orange { background-color: var(--ios-orange); color: #000; }
+        .icon-blue { background-color: var(--ios-blue); color: #fff; }
+
+        .ios-cell-arrow {
+            color: var(--ios-text-muted);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Cartões de Formulário */
+        .ios-form-card {
+            background-color: var(--ios-card);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        form label {
+            font-size: 13px;
+            color: var(--ios-text-muted);
+            font-weight: 400;
+            margin-bottom: -10px;
+            padding-left: 4px;
+        }
+
+        form input {
+            width: 100%;
+            padding: 12px 14px;
+            background-color: #2c2c2e;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 17px;
+            outline: none;
+        }
+
+        form input:focus {
+            box-shadow: 0 0 0 2px var(--ios-blue);
+        }
+
+        /* Botões de Ação estilo iOS */
+        .ios-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            text-align: center;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .ios-btn-green { background-color: var(--ios-green); color: #000; }
+        .ios-btn-orange { background-color: var(--ios-orange); color: #000; }
+        .ios-btn-blue { background-color: var(--ios-blue); color: #fff; }
+        .ios-btn-red { background-color: rgba(255, 69, 58, 0.15); color: var(--ios-red); padding: 8px 12px; font-size: 14px; width: auto; }
+
+        .ios-btn:active {
+            opacity: 0.7;
+        }
+
+        .timestamp-badge {
+            text-align: center;
+            font-size: 13px;
+            color: var(--ios-text-muted);
+            margin-bottom: 12px;
+        }
+
+        .grafico-img {
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 15px;
+        }
+
+        th, td {
+            padding: 12px 8px;
+            text-align: left;
+            border-bottom: 0.5px solid var(--ios-separator);
+        }
+
+        th {
+            color: var(--ios-text-muted);
+            font-weight: 400;
+            font-size: 13px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

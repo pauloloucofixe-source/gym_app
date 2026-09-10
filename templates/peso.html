@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="ios-nav">
+        <a href="{{ url_for('index') }}" class="ios-back-btn">‹ Menu</a>
+    </div>
+
+    <h1>Peso Corporal</h1>
+    <div class="timestamp-badge">📅 Registo Automático: {{ agora_str }}</div>
+    
+    <div class="ios-form-card">
+        <form method="POST">
+            <label>Peso Atual (kg)</label>
+            <input type="number" step="0.1" name="peso" placeholder="Ex: 75.5" required>
+            
+            <button type="submit" class="ios-btn ios-btn-blue">Guardar Novo Peso</button>
+        </form>
+    </div>
+
+    <h2>Evolução</h2>
+    <div class="ios-form-card">
+        {% if grafico_path %}
+            <img src="{{ url_for('static', filename='peso_evolucao.png') }}?v={{ timestamp }}" class="grafico-img" alt="Evolução do Peso">
+        {% else %}
+            <p style="text-align: center; color: var(--ios-text-muted); font-size: 15px; padding: 10px;">Ainda sem registos de peso guardados.</p>
+        {% endif %}
+    </div>
+
+    <h2>Histórico</h2>
+    <div class="ios-form-card">
+        {% if registos %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Peso</th>
+                    <th style="text-align: right;">Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in registos %}
+                <tr>
+                    <td>{{ r.data_formatada }}</td>
+                    <td><b>{{ r.peso }} kg</b></td>
+                    <td style="text-align: right;">
+                        <form action="{{ url_for('peso_atual') }}" method="POST" style="margin:0;">
+                            <input type="hidden" name="apagar_id" value="{{ r.id }}">
+                            <button type="submit" class="ios-btn ios-btn-red">Apagar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p style="text-align: center; color: var(--ios-text-muted); padding: 10px; font-size: 15px;">Sem entradas.</p>
+        {% endif %}
+    </div>
+{% endblock %}
