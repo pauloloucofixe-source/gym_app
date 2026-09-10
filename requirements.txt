@@ -1,3 +1,1 @@
-Flask==3.0.0
-pandas==2.1.1
-matplotlib==3.8.0
+Flask==3.0.2
