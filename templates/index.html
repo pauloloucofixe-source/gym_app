@@ -1,11 +1,53 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>💪 Pajo Gym</h1>
-    
+    <h1>PAJO GYM TRACKER</h1>
+    <p style="color: var(--ios-text-muted); margin-bottom: 24px; font-size: 15px;">Bem-vindo ao  centro de treino do Perro Negro.</p>
+
+    <!-- Dashboard de Estatísticas Rápidas -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
+        <!-- Cartão de Peso -->
+        <div class="ios-form-card" style="margin-bottom: 0; padding: 16px; text-align: left; display: flex; flex-direction: column; justify-content: space-between;">
+            <div style="font-size: 11px; color: var(--ios-text-muted); text-transform: uppercase; font-weight: 600;">Peso Atual</div>
+            <div style="margin: 8px 0;">
+                {% if peso_atual %}
+                    <span style="font-size: 24px; font-weight: bold; color: var(--ios-text);">{{ peso_atual }}</span> <span style="font-size: 14px; color: var(--ios-text-muted);">kg</span>
+                {% else %}
+                    <span style="font-size: 14px; color: var(--ios-text-muted);">Sem registos</span>
+                {% endif %}
+            </div>
+            <div>
+                {% if variacao_peso is not none %}
+                    {% if variacao_peso < 0 %}
+                        <span style="font-size: 12px; color: #30d158; font-weight: 600;">▼ {{ variacao_peso }} kg vs ant.</span>
+                    {% elif variacao_peso > 0 %}
+                        <span style="font-size: 12px; color: #ff453a; font-weight: 600;">▲ +{{ variacao_peso }} kg vs ant.</span>
+                    {% else %}
+                        <span style="font-size: 12px; color: var(--ios-text-muted); font-weight: 600;">Estável</span>
+                    {% endif %}
+                {% else %}
+                    <span style="font-size: 12px; color: var(--ios-text-muted);">--</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Cartão de Treinos na Semana -->
+        <div class="ios-form-card" style="margin-bottom: 0; padding: 16px; text-align: left; display: flex; flex-direction: column; justify-content: space-between;">
+            <div style="font-size: 11px; color: var(--ios-text-muted); text-transform: uppercase; font-weight: 600;">Treinos (7 Dias)</div>
+            <div style="margin: 8px 0;">
+                <span style="font-size: 24px; font-weight: bold; color: var(--ios-text);">{{ total_treinos_semana }}</span> <span style="font-size: 14px; color: var(--ios-text-muted);">sessões</span>
+            </div>
+            <div>
+                <span style="font-size: 12px; color: var(--ios-green); font-weight: 600;">⚡️ Em atividade</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegação Principal -->
+    <h3 style="margin: 0 0 8px 4px; font-size: 13px; color: var(--ios-text-muted);">SECÇÕES</h3>
     <div class="ios-group">
         <a href="{{ url_for('musculacao_menu') }}" class="ios-cell">
             <div class="ios-cell-left">
-                <div class="ios-cell-icon icon-green">🏋️‍♂️</div>
+                <div class="ios-cell-icon icon-green">💪</div>
                 <span>Musculação</span>
             </div>
             <span class="ios-cell-arrow">›</span>
@@ -20,7 +62,14 @@
         <a href="{{ url_for('peso_atual') }}" class="ios-cell">
             <div class="ios-cell-left">
                 <div class="ios-cell-icon icon-blue">⚖️</div>
-                <span>Atualizações do Peso</span>
+                <span>Peso Corporal</span>
+            </div>
+            <span class="ios-cell-arrow">›</span>
+        </a>
+        <a href="{{ url_for('historico_geral') }}" class="ios-cell">
+            <div class="ios-cell-left">
+                <div class="ios-cell-icon icon-blue" style="background-color: #5856d6;">📋</div>
+                <span>Histórico Geral</span>
             </div>
             <span class="ios-cell-arrow">›</span>
         </a>
