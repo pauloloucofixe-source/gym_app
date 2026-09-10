@@ -1,11 +1,38 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>PAJO GYM TRACKER</h1>
-    <p style="color: var(--ios-text-muted); margin-bottom: 24px; font-size: 15px;">Bem-vindo ao  centro de treino do Perro Negro.</p>
+    <!-- Cabeçalho com Título e Streak de Fogo -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+        <h1>Pajo Gym</h1>
+        <div style="background: var(--ios-card-bg); border: 1px solid var(--ios-border); padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <span style="font-size: 14px;">🔥</span>
+            <span style="font-size: 13px; font-weight: bold; color: var(--ios-orange);">{{ streak_dias }} dias</span>
+        </div>
+    </div>
+    <p style="color: var(--ios-text-muted); margin-bottom: 20px; font-size: 15px;">Bem-vindo ao teu centro de treino pessoal.</p>
 
-    <!-- Dashboard de Estatísticas Rápidas -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
-        <!-- Cartão de Peso -->
+    <!-- Tarefas / Lembrete de Treino para Hoje -->
+    <div class="ios-form-card" style="background: linear-gradient(135deg, rgba(10, 132, 255, 0.15), rgba(48, 209, 88, 0.15)); border: 1px solid var(--ios-blue); margin-bottom: 20px; padding: 14px 16px;">
+        <div style="font-size: 11px; color: var(--ios-blue); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">📅 Treino Planeado • {{ dia_hoje }}</div>
+        
+        {% if exercicios_hoje %}
+            <div style="font-size: 15px; font-weight: bold; color: var(--ios-text); margin-top: 8px;">Exercícios a fazer:</div>
+            <div style="margin-top: 6px; display: flex; flex-direction: column; gap: 6px;">
+                {% for item in exercicios_hoje %}
+                <div style="display: flex; justify-content: space-between; align-items: center; background: var(--ios-input-bg); padding: 8px 12px; border-radius: 8px;">
+                    <div>
+                        <span style="font-size: 14px; font-weight: 600; color: var(--ios-text);">{{ item.exercicio }}</span>
+                        <span style="font-size: 11px; color: var(--ios-text-muted); display: block;">{{ item.grupo }}</span>
+                    </div>
+                    <a href="{{ url_for('musculacao_registar', grupo=item.grupo, exercicio=item.exercicio) }}" style="background-color: var(--ios-green); color: #000; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none;">Dar Check ›</a>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="font-size: 15px; font-weight: normal; color: var(--ios-text-muted); margin-top: 6px;">Nenhum exercício planeado para hoje. Vai ao Plano Semanal para adicionar!</div>
+        {% endif %}
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
         <div class="ios-form-card" style="margin-bottom: 0; padding: 16px; text-align: left; display: flex; flex-direction: column; justify-content: space-between;">
             <div style="font-size: 11px; color: var(--ios-text-muted); text-transform: uppercase; font-weight: 600;">Peso Atual</div>
             <div style="margin: 8px 0;">
@@ -30,7 +57,6 @@
             </div>
         </div>
 
-        <!-- Cartão de Treinos na Semana -->
         <div class="ios-form-card" style="margin-bottom: 0; padding: 16px; text-align: left; display: flex; flex-direction: column; justify-content: space-between;">
             <div style="font-size: 11px; color: var(--ios-text-muted); text-transform: uppercase; font-weight: 600;">Treinos (7 Dias)</div>
             <div style="margin: 8px 0;">
@@ -42,9 +68,15 @@
         </div>
     </div>
 
-    <!-- Navegação Principal -->
     <h3 style="margin: 0 0 8px 4px; font-size: 13px; color: var(--ios-text-muted);">SECÇÕES</h3>
     <div class="ios-group">
+        <a href="{{ url_for('plano_semanal') }}" class="ios-cell">
+            <div class="ios-cell-left">
+                <div class="ios-cell-icon icon-blue" style="background-color: #af52de;">🗓️</div>
+                <span>Plano Semanal (Split)</span>
+            </div>
+            <span class="ios-cell-arrow">›</span>
+        </a>
         <a href="{{ url_for('musculacao_menu') }}" class="ios-cell">
             <div class="ios-cell-left">
                 <div class="ios-cell-icon icon-green">💪</div>
