@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="ios-nav">
+        <a href="{{ url_for('index') }}" class="ios-back-btn">‹ Menu</a>
+    </div>
+
+    <h1>Split de Treino</h1>
+    <p style="color: var(--ios-text-muted); margin-bottom: 20px; font-size: 14px;">Planeia os exercícios para cada dia da semana.</p>
+
+    <!-- Formulário para Adicionar Exercício ao Plano -->
+    <div class="ios-form-card" style="margin-bottom: 20px;">
+        <form method="POST">
+            <label>Dia da Semana</label>
+            <select name="dia_semana" required>
+                {% for dia in dias_ordem %}
+                <option value="{{ dia }}">{{ dia }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Grupo Muscular</label>
+            <select name="grupo" required>
+                {% for grupo in grupos %}
+                <option value="{{ grupo }}">{{ grupo }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Exercício Guardado</label>
+            <select name="exercicio_select">
+                <option value="">-- Escolher dos já guardados --</option>
+                {% for ex in exercicios_existentes %}
+                <option value="{{ ex }}">{{ ex }}</option>
+                {% endfor %}
+            </select>
+
+            <label style="margin-top: 6px;">Ou Escrever Exercício Novo</label>
+            <input type="text" name="exercicio_novo" placeholder="Ex: Supino Inclinado" autocomplete="off">
+
+            <button type="submit" class="ios-btn ios-btn-green" style="margin-top: 10px;">+ Adicionar ao Plano</button>
+        </form>
+    </div>
+
+    <h3 style="margin: 0 0 8px 4px; font-size: 13px; color: var(--ios-text-muted);">EXERCÍCIOS PLANEADOS</h3>
+    <div class="ios-group">
+        {% if plano_raw %}
+            {% for item in plano_raw %}
+            <div class="ios-cell" style="padding: 12px 16px;">
+                <div>
+                    <div style="font-size: 12px; color: var(--ios-blue); font-weight: 700; text-transform: uppercase;">{{ item.dia_semana }} • {{ item.grupo }}</div>
+                    <div style="font-size: 16px; font-weight: 600; color: var(--ios-text); margin-top: 2px;">{{ item.exercicio }}</div>
+                </div>
+                <form method="POST" style="margin:0;">
+                    <input type="hidden" name="apagar_id" value="{{ item.id }}">
+                    <button type="submit" style="background:none; border:none; color: #ff453a; font-size: 13px; cursor:pointer; padding:0;" onclick="return confirm('Remover do plano?')">Remover</button>
+                </form>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="padding: 20px; text-align: center; color: var(--ios-text-muted); font-size: 14px;">
+                Ainda não tens exercícios planeados. Adiciona acima!
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
