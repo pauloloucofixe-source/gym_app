@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="ios-nav">
+        <a href="{{ url_for('index') }}" class="ios-back-btn">‹ Menu</a>
+    </div>
+
+    <h1>Histórico Geral</h1>
+    <p style="color: var(--ios-text-muted); margin-bottom: 20px; font-size: 14px;">Consulta e filtra todas as tuas atividades e registos.</p>
+
+    <!-- Filtro por Datas -->
+    <div class="ios-form-card" style="margin-bottom: 20px;">
+        <form id="filtroForm" method="GET" style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 11px; text-transform: uppercase; color: var(--ios-text-muted);">Data Início</label>
+                    <input type="date" id="dataInicio" name="data_inicio" value="{{ data_inicio }}" style="margin-bottom: 0; font-size: 14px; padding: 8px;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 11px; text-transform: uppercase; color: var(--ios-text-muted);">Data Fim</label>
+                    <input type="date" id="dataFim" name="data_fim" value="{{ data_fim }}" style="margin-bottom: 0; font-size: 14px; padding: 8px;">
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 4px;">
+                <button type="submit" class="ios-btn ios-btn-green" style="flex: 2; margin-top: 0; padding: 10px;">Filtrar</button>
+                <a href="{{ url_for('historico_geral') }}" class="ios-btn" style="flex: 1; margin-top: 0; background: #3a3a3c; color: #fff; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; padding: 10px; border-radius: 10px; font-weight: 600;">Limpar</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Lista de Registos -->
+    {% if registos %}
+    <div class="ios-group">
+        {% for r in registos %}
+        <div class="ios-cell" style="padding: 12px 16px; align-items: center;">
+            <div class="ios-cell-left" style="flex: 1;">
+                <div class="ios-cell-icon 
+                    {% if r.categoria == 'Musculação' %}icon-green
+                    {% elif r.categoria == 'Cardio' %}icon-orange
+                    {% else %}icon-blue{% endif %}" style="font-size: 14px;">
+                    {% if r.categoria == 'Musculação' %}💪
+                    {% elif r.categoria == 'Cardio' %}🏃‍♂️
+                    {% else %}⚖️{% endif %}
+                </div>
+                <div>
+                    <div style="font-size: 15px; font-weight: 600; color: var(--ios-text);">{{ r.titulo }}</div>
+                    <div style="font-size: 13px; color: var(--ios-text-muted);">{{ r.detalhes }}</div>
+                    <div style="font-size: 11px; color: var(--ios-text-muted); margin-top: 2px;">{{ r.data_formatada }} • <b>{{ r.categoria }}</b></div>
+                </div>
+            </div>
+            <form action="{{ url_for('historico_apagar') }}" method="POST" onsubmit="return confirm('Queres mesmo apagar este registo?');" style="margin: 0;">
+                <input type="hidden" name="id" value="{{ r.id }}">
+                <input type="hidden" name="categoria" value="{{ r.categoria }}">
+                <button type="submit" style="background: none; border: none; color: #ff453a; font-size: 13px; font-weight: 600; cursor: pointer; padding: 4px 8px;">Apagar</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="ios-form-card" style="text-align: center; margin-top: 20px;">
+        <p style="color: var(--ios-text-muted); font-size: 14px;">Nenhum registo encontrado para o período selecionado.</p>
+    </div>
+    {% endif %}
+
+    <!-- Script de validação de datas -->
+    <script>
+        const inputInicio = document.getElementById('dataInicio');
+        const inputFim = document.getElementById('dataFim');
+
+        inputInicio.addEventListener('change', function() {
+            if (inputInicio.value && inputFim.value) {
+                if (inputInicio.value > inputFim.value) {
+                    inputFim.value = inputInicio.value;
+                }
+            }
+        });
+
+        inputFim.addEventListener('change', function() {
+            if (inputInicio.value && inputFim.value) {
+                if (inputFim.value < inputInicio.value) {
+                    inputInicio.value = inputFim.value;
+                }
+            }
+        });
+    </script>
+{% endblock %}
